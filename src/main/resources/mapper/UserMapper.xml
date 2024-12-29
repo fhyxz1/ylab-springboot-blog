@@ -22,10 +22,12 @@
     <select id="getUserByUsername" parameterType="String" resultMap="userResultMap">
         SELECT * FROM `user` WHERE `username` = #{username};
     </select>
+
     <!-- 根据权限id查询角色 -->
     <select id="getRole" parameterType="Integer" resultType="String">
-        SELECT role_name FROM `roles` WHERE role_id =#{roleid}
+        SELECT role_name FROM `roles` WHERE role_id = #{roleid}
     </select>
+
     <!-- 根据 ID 查询用户 -->
     <select id="getUserById" parameterType="Integer" resultMap="userResultMap">
         SELECT * FROM `user` WHERE `user_id` = #{userid};
@@ -36,4 +38,10 @@
         SELECT * FROM `user`
         WHERE `username` = #{username} AND `password` = #{password};
     </select>
+
+    <!-- 插入用户（不插入昵称） -->
+    <insert id="insertUser" parameterType="com.example.blog.Entity.User">
+        INSERT INTO `user` (username, password, role_id)
+        VALUES (#{username}, #{password}, #{roleid});
+    </insert>
 </mapper>

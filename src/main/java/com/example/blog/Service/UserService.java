@@ -29,7 +29,7 @@ public class UserService {
     }
 
     // 注册用户
-    public boolean registerUser(User user) {
+    public String registerUser(User user) {
         if (user == null || user.getUsername() == null) {
             throw new IllegalArgumentException("用户信息或用户名不能为空");
         }
@@ -37,11 +37,11 @@ public class UserService {
         // 检查用户名是否存在
         User existingUser = userMapper.getUserByUsername(user.getUsername());
         if (existingUser != null) {
-            return false; // 用户名已存在
+            return "exists"; // 用户名已存在
         }
 
         userMapper.insertUser(user);
-        return true;
+        return "success";
     }
 
     // 根据用户名查询用户
