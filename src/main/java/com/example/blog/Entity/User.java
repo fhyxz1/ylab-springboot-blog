@@ -11,5 +11,6 @@ public class User {
     private String password;      // 密码
     private Integer roleid;       // 用户角色ID
     private String fullname;      // 用户全名
+    private String email;
     private LocalDateTime registerTime; // 注册时间
 }

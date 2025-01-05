@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.blog.Mapper.GuestbookMapper">
+
+    <!-- 获取留言列表 -->
+    <select id="getAllguestbook" resultMap="GuestbookMap" >
+        SELECT * FROM guestbook
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+#         ORDER BY create_time DESC
+    </select>
+
+    <!-- 获取留言总数 -->
+    <select id="getCommentCount" resultType="int">
+        SELECT COUNT(*) FROM guestbook
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+<!--根据id查询对应留言-->
+    <select id="getguestbookbyid" resultType="com.example.blog.Entity.Guestbook">
+        SELECT * FROM guestbook
+        where id=#{id};
+    </select>
+    <!-- 审核通过 -->
+    <update id="approveguestbook">
+        UPDATE guestbook
+        SET status = 'approved'
+        WHERE id = #{id}
+    </update>
+
+    <!-- 审核拒绝 -->
+    <update id="rejectguestbook">
+        UPDATE guestbook
+        SET status = 'rejected'
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除留言 -->
+    <delete id="deleteguestbook">
+        DELETE FROM guestbook WHERE id = #{id}
+    </delete>
+
+        <!-- 插入留言 -->
+        <insert id="insertguestbook" useGeneratedKeys="true" keyProperty="id">
+            INSERT INTO guestbook (username, content, create_time, status)
+            VALUES (#{username}, #{content}, NOW(), DEFAULT)
+        </insert>
+
+<resultMap id="GuestbookMap" type="com.example.blog.Entity.Guestbook">
+<result property="id" column="id"/>
+    <result property="id" column="id"/>
+    <result property="username" column="username"/>
+    <result property="content" column="content"/>
+    <result property="createTime" column="create_time"/>
+    <result property="status" column="status"/>
+</resultMap>
+</mapper>

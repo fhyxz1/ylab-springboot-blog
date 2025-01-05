@@ -1,5 +1,8 @@
 package com.example.blog.Mapper;
 
+import com.example.blog.Dto.categories;
+import com.example.blog.Dto.postlist;
+import com.example.blog.Dto.wz;
 import com.example.blog.Entity.Post;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
@@ -9,10 +12,10 @@ public interface PostMapper {
 
     // 根据 postId 获取文章
     Post getPostById(Integer postId);
-
+     List<categories> getCategories();
     // 获取所有文章
-    List<Post> getAllPosts();
-
+    List<postlist> getAllPosts();
+    List<wz>getwz();
     // 根据标题模糊查询文章
     List<Post> getPostsByTitle(String title);
 

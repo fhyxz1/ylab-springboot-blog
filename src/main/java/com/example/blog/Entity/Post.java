@@ -14,6 +14,6 @@ public class Post {
     private String ImgUrl;
     private String author;
     private Integer category_id;
-
+    private Integer tags_id;
 
 }

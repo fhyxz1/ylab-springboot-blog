@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.blog.Mapper.AnnouncementMapper">
+    <!-- 插入公告 -->
+    <insert id="insertAnnouncement" >
+        INSERT INTO announcement (title, content, created_at, updated_at, is_active)
+        VALUES (#{title}, #{content}, #{createdAt}, #{updatedAt}, #{isActive});
+    </insert>
+
+    <select id="selectAnnouncementByTitle" resultType="com.example.blog.Entity.Announcement">
+        SELECT * FROM announcement WHERE title = #{title} LIMIT 1
+    </select>
+
+    <!-- 更新公告 -->
+    <update  id="updateAnnouncement"  >
+        UPDATE announcement
+        SET title = #{title},
+        content = #{content},
+        updated_at = NOW(), <!-- 使用数据库的时间函数 -->
+        is_active = #{isActive}
+        WHERE id = #{id};
+    </update>
+
+
+    <!-- 删除公告-->
+    <delete id="deleteAnnouncement">
+       DELETE FROM announcement WHERE id = #{id};
+    </delete>
+
+    <!-- 查询所有的公告 -->
+    <select id="selectAllAnnouncement" resultMap="AnnouncementMap">
+        SELECT id, title, content, created_at, updated_at, is_active
+        FROM announcement
+    </select>
+    <select id="selectAllUActiveAnnouncement" resultMap="AnnouncementMap">
+        SELECT id, title, content, created_at, updated_at, is_active
+        FROM announcement
+        where is_active=1
+    </select>
+
+    <!-- 查询所有禁用的公告 -->
+    <select id="selectInactiveAnnouncements" resultType="Announcement">
+        SELECT id, title, content, created_at, updated_at, is_active
+        FROM announcement
+        WHERE is_active = FALSE
+        ORDER BY created_at DESC;
+    </select>
+
+    <!-- 根据ID查询启用的公告 -->
+    <select id="selectActiveAnnouncementById" resultType="Announcement" parameterType="Integer">
+        SELECT id, title, content, created_at, updated_at, is_active
+        FROM announcement
+        WHERE id = #{id} AND is_active = TRUE;
+    </select>
+    <select id="selectAnnouncementById" resultMap="AnnouncementMap" parameterType="Integer">
+        SELECT id,title, content, is_active
+        FROM announcement
+        WHERE id = #{id}
+    </select>
+    <!-- 根据ID查询禁用的公告 -->
+    <select id="selectInactiveAnnouncementById" resultType="Announcement" parameterType="Integer">
+        SELECT id, title, content, created_at, updated_at, is_active
+        FROM announcement
+        WHERE id = #{id} AND is_active = FALSE;
+    </select>
+
+    <resultMap id="AnnouncementMap" type="com.example.blog.Entity.Announcement">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="isActive" column="is_active"/>
+    </resultMap>
+</mapper>

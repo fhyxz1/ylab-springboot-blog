@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.Role;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -100,5 +101,67 @@ public class UserController {
     public ResponseEntity<String> logout() {
         StpUtil.logout();
         return ResponseEntity.ok("User logged out successfully!"); // 返回200 OK
+    }
+    //获取用户列表
+    @GetMapping("/list")
+    public ResponseEntity<?> getUserList(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) Integer roleid,
+            @RequestParam(defaultValue = "1") Integer currentPage,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            Map<String, Object> result = userService.getUserList(username, roleid, currentPage, pageSize);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("获取用户列表失败：" + e.getMessage());
+        }
+    }
+//更新用户数据
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User user) {
+        try {
+            user.setUserid(id);
+            boolean success = userService.updateUser(user);
+            if (success) {
+                return ResponseEntity.ok("用户更新成功");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用户不存在");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("更新失败：" + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+        try {
+            boolean success = userService.deleteUser(id);
+            if (success) {
+                return ResponseEntity.ok("用户删除成功");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用户不存在");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("删除用户失败：" + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/reset-password")
+    public ResponseEntity<?> resetPassword(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        try {
+            String newPassword = body.get("password");
+            boolean success = userService.resetPassword(id, newPassword);
+            if (success) {
+                return ResponseEntity.ok("密码重置成功");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用户不存在");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("密码重置失败：" + e.getMessage());
+        }
     }
 }

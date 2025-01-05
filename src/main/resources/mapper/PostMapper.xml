@@ -8,12 +8,27 @@
         FROM posts
         WHERE post_id = #{postId}
     </select>
-
-    <!-- 获取所有文章 -->
-    <select id="getAllPosts" resultMap="PostResultMap">
-        SELECT post_id, title, abstract, content, fb_date, imgurl, author, category_id
+    <select id="getwz" resultMap="wz">
+        SELECT post_id, title, fb_date, author
         FROM posts
     </select>
+    <select id="getAllPosts" resultMap="PostlistMap">
+        SELECT
+        p.post_id,
+        p.imgurl,
+        p.title,
+        p.abstract,
+        p.author,
+        c.category_name AS category_name,
+        t.tag_name AS tag_name
+        FROM
+        posts p
+        LEFT JOIN
+        categories c ON p.category_id = c.category_id
+        LEFT JOIN
+        tags t ON p.tags_id = t.tag_id
+    </select>
+
 
     <!-- 根据标题模糊查询文章 -->
     <select id="getPostsByTitle" resultMap="PostResultMap">
@@ -21,6 +36,26 @@
         FROM posts
         WHERE title LIKE CONCAT('%', #{title}, '%')
     </select>
+
+    <select id="getCategories" resultMap="CategoriesResultMap">
+        SELECT
+        c.category_name AS category,
+        t.tag_name AS tag
+        FROM
+        categories c
+        JOIN category_tag ct ON c.category_id = ct.category_id
+        JOIN tags t ON ct.tag_id = t.tag_id;
+        <!-- 按分类名称分组 -->
+    </select>
+
+    <resultMap id="CategoriesResultMap" type="com.example.blog.Dto.categories">
+        <id property="category_name" column="category"/>
+        <collection property="tags" ofType="String">
+            <result  column="tag"/>
+        </collection>
+    </resultMap>
+
+
 
     <!-- 插入新文章 -->
     <insert id="addPost" useGeneratedKeys="true" keyProperty="postId">
@@ -46,7 +81,17 @@
         DELETE FROM posts WHERE post_id = #{postId}
     </delete>
 
-    <!-- ResultMap -->
+    <!-- ResultMap for Post -->
+    <resultMap id="PostlistMap" type="com.example.blog.Dto.postlist">
+        <result property="postId" column="post_id"/>
+        <result property="imgUrl" column="ImgUrl"/>
+        <result property="title" column="title"/>
+        <result property="summary" column="abstract"/>
+        <result property="author" column="author"/>
+        <result property="category" column="category_name"/>
+        <result property="tags" column="tag_name"/>
+    </resultMap>
+
     <resultMap id="PostResultMap" type="com.example.blog.Entity.Post">
         <result property="postId" column="post_id"/>
         <result property="title" column="title"/>
@@ -57,5 +102,10 @@
         <result property="author" column="author"/>
         <result property="category_id" column="category_id"/>
     </resultMap>
-
+    <resultMap id="wz" type="com.example.blog.Dto.wz">
+        <result property="postId" column="post_id"/>
+        <result property="title" column="title"/>
+        <result property="author" column="author"/>
+        <result property="fbDate" column="fb_date"/>
+    </resultMap>
 </mapper>

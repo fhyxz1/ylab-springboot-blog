@@ -4,44 +4,91 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.blog.Mapper.UserMapper">
-    <!-- 定义通用的 resultMap -->
+    <!-- 保持原有的 resultMap -->
     <resultMap id="userResultMap" type="com.example.blog.Entity.User">
         <id column="user_id" property="userid"/>
         <result column="username" property="username"/>
         <result column="password" property="password"/>
         <result column="role_id" property="roleid"/>
         <result column="full_name" property="fullname"/>
+        <result column="email" property="email"/>
+        <result column="register_time" property="registerTime"/>
     </resultMap>
 
-    <!-- 查询所有用户 -->
-    <select id="getAllUsers" resultMap="userResultMap">
-        SELECT * FROM `user`;
-    </select>
-
-    <!-- 根据用户名查询用户 -->
     <select id="getUserByUsername" parameterType="String" resultMap="userResultMap">
         SELECT * FROM `user` WHERE `username` = #{username};
     </select>
 
-    <!-- 根据权限id查询角色 -->
     <select id="getRole" parameterType="Integer" resultType="String">
         SELECT role_name FROM `roles` WHERE role_id = #{roleid}
     </select>
 
-    <!-- 根据 ID 查询用户 -->
     <select id="getUserById" parameterType="Integer" resultMap="userResultMap">
         SELECT * FROM `user` WHERE `user_id` = #{userid};
     </select>
 
-    <!-- 登录验证 -->
     <select id="login" parameterType="map" resultMap="userResultMap">
         SELECT * FROM `user`
         WHERE `username` = #{username} AND `password` = #{password};
     </select>
 
-    <!-- 插入用户（不插入昵称） -->
     <insert id="insertUser" parameterType="com.example.blog.Entity.User">
         INSERT INTO `user` (username, password, role_id)
         VALUES (#{username}, #{password}, #{roleid});
     </insert>
+
+    <!-- 新增用户管理所需的接口 -->
+    <!-- 分页查询用户列表 -->
+    <select id="getUserList" resultMap="userResultMap">
+        SELECT * FROM `user`
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="roleid != null">
+                AND role_id = #{roleid}
+            </if>
+        </where>
+        ORDER BY user_id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 获取用户总数 -->
+    <select id="getUserCount" resultType="integer">
+        SELECT COUNT(*) FROM `user`
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="roleid != null">
+                AND role_id = #{roleid}
+            </if>
+        </where>
+    </select>
+
+    <!-- 更新用户信息 -->
+    <update id="updateUser" parameterType="com.example.blog.Entity.User">
+        UPDATE `user`
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="fullname != null">full_name = #{fullname},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="roleid != null">role_id = #{roleid},</if>
+        </set>
+        WHERE user_id = #{userid}
+    </update>
+    <select id="getAllUsers" resultMap="userResultMap">
+        SELECT * FROM `user`
+    </select>
+    <!-- 删除用户 -->
+    <delete id="deleteUser" parameterType="Integer">
+        DELETE FROM `user` WHERE user_id = #{userid}
+    </delete>
+
+    <!-- 重置用户密码 -->
+    <update id="resetPassword">
+        UPDATE `user`
+        SET password = #{newPassword}
+        WHERE user_id = #{userid}
+    </update>
 </mapper>

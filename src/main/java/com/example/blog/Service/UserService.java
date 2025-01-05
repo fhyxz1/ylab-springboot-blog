@@ -6,14 +6,45 @@ import com.example.blog.Mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+    public Map<String, Object> getUserList(String username, Integer roleid, Integer currentPage, Integer pageSize) {
+        int offset = (currentPage - 1) * pageSize;
+        List<User> users = userMapper.getUserList(username, roleid, offset, pageSize);
+        int total = userMapper.getUserCount(username, roleid);
 
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", users);
+        result.put("total", total);
+        return result;
+    }
+    public boolean updateUser(User user) {
+        if (user == null || user.getUserid() == null) {
+            throw new IllegalArgumentException("用户信息不能为空");
+        }
+        return userMapper.updateUser(user) > 0;
+    }
+
+    public boolean deleteUser(Integer userid) {
+        if (userid == null) {
+            throw new IllegalArgumentException("用户ID不能为空");
+        }
+        return userMapper.deleteUser(userid) > 0;
+    }
+
+    public boolean resetPassword(Integer userid, String newPassword) {
+        if (userid == null || newPassword == null) {
+            throw new IllegalArgumentException("用户ID和新密码不能为空");
+        }
+        return userMapper.resetPassword(userid, newPassword) > 0;
+    }
     // 查询单个用户
     public User getUserById(Integer id) {
         System.out.println(id);
@@ -79,4 +110,5 @@ public class UserService {
             throw new RuntimeException("登录失败: " + e.getMessage(), e);
         }
     }
+
 }
